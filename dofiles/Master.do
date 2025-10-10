@@ -14,11 +14,9 @@ frame change default
 set varabbrev off
 
 
+do "./dofiles/A0_supplementary_data.do" // create the cleaned data used in the final data construction
 
-
-
-
-
+do "./dofiles/A1_1_data_construction.do" // construct the primary data for matching couples and their parents id
 
 
 

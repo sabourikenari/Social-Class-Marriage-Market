@@ -43,7 +43,6 @@ rename father parent1
 * check missing grandparents 
 gen missing = 1 if mi(parent11) | mi(parent12) | mi(parent21) | mi(parent22) 
 replace missing = 0 if missing==.
-
 tab missing
 
 preserve 
@@ -58,3 +57,22 @@ graph twoway (line missing t_match, lcolor(navy) lwidth(thick) lpattern(solid)),
     legend(off) graphregion(color(white)) 
 
 restore 
+
+drop missing _merge 
+
+** add parents information step-by-step 
+greshape long parent, by(id_spouse) keys(g_parent)
+drop if mi(parent) 
+rename parent id_person
+
+** demographic information of parents
+merge m:1 id_person using "${general_data}/clean_demografi.dta", keep(match master) keepusing(yob lan_of_birth country_of_birth_iso) nogenerate 
+rename lan_of_birth lob 
+rename country_of_birth_iso cob 
+gen swede = 1 if cob==187 
+
+
+
+
+
+// greshape wide parent, by(id_spouse) keys(g_parent)
