@@ -71,7 +71,13 @@ rename lan_of_birth lob
 rename country_of_birth_iso cob 
 gen swede = 1 if cob==187 
 
+** income information 
+gen year = t_match - 5
+merge m:1 id_person year using "${general_data}/iot_income.dta", keep(match master) keepusing(earnings_work5) nogenerate
 
+** registered lcoation at time of matching 
+replace year = t_match 
+merge m:1 id_person year using "${general_data}/clean_boende.dta", keep(match master) keepusing(lan kommun) nogenerate
 
 
 
