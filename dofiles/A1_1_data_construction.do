@@ -92,6 +92,20 @@ rename SUN2000Niva_old_max educ
 ** reshape data to wide format 
 drop year 
 rename id_person parent
-greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
 
+preserve 
+    keep if inlist(g_parent,1,11,12)
+    greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
+    save "${root_dir}/data/A1_1_couples_info_man.dta", replace
+restore 
+preserve 
+    keep if inlist(g_parent,2,21,22)
+    greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
+    save "${root_dir}/data/A1_1_couples_info_woman.dta", replace
+restore 
+
+greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
 save "${root_dir}/data/A1_1_couples_info.dta", replace
+
+// ** save data for men and women separately 
+// greshape long parent, by(id_spouse) keys(g_parent)
