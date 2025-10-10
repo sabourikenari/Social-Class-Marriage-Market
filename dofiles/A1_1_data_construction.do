@@ -19,6 +19,7 @@ rename child id_spouse
 
 * the yob of the child works as the matching year of the couple
 rename yob t_match 
+keep if inrange(t_match, 1970, 2019)
 
 
 ** merge with parent-child data to find the spouse's parents (i.e., the other set of grandparents) 
@@ -39,3 +40,21 @@ rename parent2 parent22
 rename child parent2 
 rename father parent1
 
+* check missing grandparents 
+gen missing = 1 if mi(parent11) | mi(parent12) | mi(parent21) | mi(parent22) 
+replace missing = 0 if missing==.
+
+tab missing
+
+preserve 
+gcollapse (mean) missing , by(t_match) fast 
+replace missing = missing*100
+
+graph twoway (line missing t_match, lcolor(navy) lwidth(thick) lpattern(solid)), ///
+    title("Share of couples with missing parents over time") ///
+    xtitle("Matching year (year of first child's birth)") ///
+    ytitle("Share of couples with missing grandparents") ///
+    ylabel(0(10)100, format(%9.0f)) ///
+    legend(off) graphregion(color(white)) 
+
+restore 
