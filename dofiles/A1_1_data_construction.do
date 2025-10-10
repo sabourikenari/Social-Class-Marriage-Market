@@ -74,11 +74,24 @@ gen swede = 1 if cob==187
 ** income information 
 gen year = t_match - 5
 merge m:1 id_person year using "${general_data}/iot_income.dta", keep(match master) keepusing(earnings_work5) nogenerate
+rename earnings_work5 income
 
 ** registered lcoation at time of matching 
 replace year = t_match 
 merge m:1 id_person year using "${general_data}/clean_boende.dta", keep(match master) keepusing(lan kommun) nogenerate
 
+** wealth information  
+replace year = t_match - 5 
+merge m:1 id_person year using "${root_dir}/data/A0_2_clean_wealth.dta", keep(match master) keepusing(FNETTMV) nogenerate
+rename FNETTMV wealth 
 
+** education information 
+merge m:1 id_person using "${general_data}/education_max.dta", keep(master matched) keepusing(SUN2000Niva_old_max) nogenerate
+rename SUN2000Niva_old_max educ 
 
-// greshape wide parent, by(id_spouse) keys(g_parent)
+** reshape data to wide format 
+drop year 
+rename id_person parent
+greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
+
+save "${root_dir}/data/A1_1_couples_info.dta", replace

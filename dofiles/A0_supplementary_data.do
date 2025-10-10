@@ -45,6 +45,19 @@ save "${root_dir}/data/A0_1_clean_family_reshaped.dta", replace
 
 
 
+/*------------------------------------------------------------------------------------------------------------
+
+    clean wealth data
+
+------------------------------------------------------------------------------------------------------------*/
+use id_person year FNETTMV using "${general_data}/clean_wealth.dta", clear 
+gcollapse (count) n=year, by(id_person year) fast merge
+keep if n==1
+drop n 
+save "${root_dir}/data/A0_2_clean_wealth.dta", replace
+
+
+
 
 
 
