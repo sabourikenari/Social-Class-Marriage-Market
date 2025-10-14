@@ -127,3 +127,20 @@ graph twoway (line miss_lan t_match, lcolor(navy) lwidth(thick) lpattern(solid))
     legend(off) graphregion(color(white)) 
 
 restore 
+
+
+** different lan codes for matched couples
+preserve
+drop if mi(lan1) | mi(lan2)
+gen diff_lan = (lan1!=lan2)
+gcollapse (mean) diff_lan , by(t_match) fast
+replace diff_lan = diff_lan*100
+
+graph twoway (line diff_lan t_match, lcolor(navy) lwidth(thick) lpattern(solid)), ///
+    title("share of couples with different registered lan") ///
+    xtitle("Matching year (year of first child's birth)") ///
+    ytitle("Share of couples with different registered lan") ///
+    ylabel(0(10)40, format(%9.0f)) ///
+    legend(off) graphregion(color(white))
+
+restore
