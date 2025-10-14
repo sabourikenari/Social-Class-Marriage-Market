@@ -41,24 +41,24 @@ rename child parent2
 rename father parent1
 
 * check missing grandparents 
-gen missing = 1 if mi(parent11) | mi(parent12) | mi(parent21) | mi(parent22) 
-replace missing = 0 if missing==.
-tab missing
+gen notmissing = 0 if mi(parent11) | mi(parent12) | mi(parent21) | mi(parent22) 
+replace notmissing = 1 if notmissing==.
+tab notmissing
 
 preserve 
-gcollapse (mean) missing , by(t_match) fast 
-replace missing = missing*100
+gcollapse (mean) notmissing , by(t_match) fast 
+replace notmissing = notmissing*100
 
-graph twoway (line missing t_match, lcolor(navy) lwidth(thick) lpattern(solid)), ///
-    title("Share of couples with missing parents over time") ///
+graph twoway (line notmissing t_match, lcolor(navy) lwidth(thick) lpattern(solid)), ///
+    title("share of each birth cohort with identified grandparents") ///
     xtitle("Matching year (year of first child's birth)") ///
-    ytitle("Share of couples with missing grandparents") ///
+    ytitle("Share of children with identified grandparents") ///
     ylabel(0(10)100, format(%9.0f)) ///
     legend(off) graphregion(color(white)) 
 
 restore 
 
-drop missing _merge 
+drop notmissing _merge 
 
 ** add parents information step-by-step 
 greshape long parent, by(id_spouse) keys(g_parent)
@@ -109,3 +109,21 @@ save "${root_dir}/data/A1_1_couples_info.dta", replace
 
 // ** save data for men and women separately 
 // greshape long parent, by(id_spouse) keys(g_parent)
+
+** document missing infromation on location
+gen miss_lan = 1 if mi(lan1) | mi(lan2)
+replace miss_lan = 0 if miss_lan==.
+
+preserve 
+keep if t_match>=1990
+gcollapse (mean) miss_lan , by(t_match) fast 
+replace miss_lan = miss_lan*100
+
+graph twoway (line miss_lan t_match, lcolor(navy) lwidth(thick) lpattern(solid)), ///
+    title("share with missing location information") ///
+    xtitle("Matching year (year of first child's birth)") ///
+    ytitle("Share with missing location information") ///
+    ylabel(0(10)100, format(%9.0f)) ///
+    legend(off) graphregion(color(white)) 
+
+restore 
