@@ -6,13 +6,16 @@ use "${root_dir}/data/A0_1_clean_family_reshaped.dta", clear
 
 ** children year of birht to find the first child of each couple 
 rename child id_person
-merge m:1 id_person using "${general_data}/clean_demografi.dta", keep(match master) keepusing(yob)
+merge m:1 id_person using "${general_data}/clean_demografi.dta", keep(match master) keepusing(yob country_of_birth_iso)
 rename id_person child
 drop _merge
 
 ** keep the first child of each couple 
 hashsort parent1 parent2 yob 
 by parent1 parent2: keep if _n==1
+
+keep if country_of_birth_iso==187
+drop country_of_birth_iso
 
 * the child id can work as spouse id now.
 rename child id_spouse 
@@ -93,6 +96,14 @@ rename SUN2000Niva_old_max educ
 drop year 
 rename id_person parent
 
+** drop if location for either spouse is missing
+capture drop miss_lan
+gen miss_lan = 1 if mi(lan) & (g_parent==1 | g_parent==2)
+replace miss_lan = 0 if miss_lan==.
+gcollapse (max) miss_lan , by(id_spouse) fast merge replace
+drop if miss_lan==1
+drop miss_lan
+
 preserve 
     keep if inlist(g_parent,1,11,12)
     greshape wide parent lob-educ, by(id_spouse) keys(g_parent)
@@ -111,10 +122,11 @@ save "${root_dir}/data/A1_1_couples_info.dta", replace
 // greshape long parent, by(id_spouse) keys(g_parent)
 
 ** document missing infromation on location
-gen miss_lan = 1 if mi(lan1) | mi(lan2)
-replace miss_lan = 0 if miss_lan==.
+
 
 preserve 
+gen miss_lan = 1 if mi(lan1) | mi(lan2)
+replace miss_lan = 0 if miss_lan==.
 keep if t_match>=1990
 gcollapse (mean) miss_lan , by(t_match) fast 
 replace miss_lan = miss_lan*100
@@ -127,7 +139,6 @@ graph twoway (line miss_lan t_match, lcolor(navy) lwidth(thick) lpattern(solid))
     legend(off) graphregion(color(white)) 
 
 restore 
-
 
 ** different lan codes for matched couples
 preserve
