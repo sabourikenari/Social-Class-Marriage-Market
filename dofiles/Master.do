@@ -1,7 +1,7 @@
 
 
 * change working directory to project folder
-global root_dir /home/workgroups/socialclass
+global root_dir /home/workgroups/socialclass/Social-Class-Marriage-Market
 global general_data "/home/workgroups/general/data"
 
 cd "${root_dir}"
